@@ -1,0 +1,59 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f2f5; 
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px; 
+  padding: 16px;
+  border-radius: 8px; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1) !important;
+}
+
+mat-card-title {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 20px !important;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.login-button {
+  width: 100%;
+  padding: 24px !important; 
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 6px !important;
+  margin-top: 10px;
+}
+
+.extra-actions {
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px 16px 16px !important;
+}
+
+.forgot-password {
+  font-size: 0.9rem;
+  margin: 12px 0;
+}
+
+.divider {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid #dddfe2;
+  margin: 20px 0;
+}
+
+.create-account {
+  width: auto;
+  padding: 20px !important;
+  font-weight: bold;
+}
