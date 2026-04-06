@@ -5,19 +5,38 @@
     </mat-card-header>
     
     <mat-card-content>
-      <form class="login-form">
+      <form (ngSubmit)="onLogin()" class="login-form">
+
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Username</mat-label> 
-          <input matInput placeholder="Username">
+          <input matInput placeholder="Username" [formControl]="username" name="username">
+          @if ( username.hasError('required') && (username.dirty || username.touched)) {
+            <mat-error >Username is required</mat-error>
+          }
+          @else if (username.hasError("backendError")) {
+            <mat-error>Invalid username or server error</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Password</mat-label> 
-          <input matInput type="password" placeholder="Password">
+          <input matInput type="password" placeholder="Password" [formControl]="password" name="password">
+          @if ( password.hasError('required') && (password.dirty || password.touched)) {
+            <mat-error >Password is required</mat-error>
+          }
+          @else if (password.hasError("backendError")) {
+            <mat-error>Invalid password or server error</mat-error>
+          }
         </mat-form-field>
 
-        <button mat-flat-button color="primary" class="login-button">
-          Login
+        <button mat-flat-button color="primary" class="login-button"  [disabled]="(loading$ | async) || !username.valid || !password.valid">
+          
+          @if (loading$ | async) {
+            <mat-progress-spinner diameter="20" mode="indeterminate"></mat-progress-spinner>
+          } @else {
+            Login
+          }
+
         </button>
       </form>
     </mat-card-content>
@@ -25,7 +44,7 @@
     <mat-card-actions align="start" class="extra-actions">
       <a mat-button color="primary" class="forgot-password">Did you forget your password?</a>
       <hr class="divider">
-      <button mat-stroked-button color="accent" class="create-account">
+      <button mat-stroked-button color="accent" class="create-account" [disabled]="loading$ | async">
         Create new user
       </button>
     </mat-card-actions>
