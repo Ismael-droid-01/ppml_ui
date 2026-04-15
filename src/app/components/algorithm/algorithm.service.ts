@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { AlgorithmModel } from "./algorithm.model";
+import { AlgorithmModel, AlgorithmParametersModel } from "./algorithm.model";
 
 @Injectable({ providedIn: 'root' })
 export class AlgorithmService {
@@ -10,5 +10,11 @@ export class AlgorithmService {
 
     public getAll(): Observable<AlgorithmModel[]> {
         return this.http.get<AlgorithmModel[]>(`${this.CALPULLI_URL}/algorithms/list`);
+    }
+
+    public getParameters(algorithm_id: number): Observable<AlgorithmParametersModel> {
+        return this.http.get<AlgorithmParametersModel>(
+            `${this.CALPULLI_URL}/algorithms/${algorithm_id}/parameters`
+        );
     }
 }

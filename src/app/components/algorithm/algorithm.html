@@ -15,26 +15,23 @@
       </mat-form-field>
     </div>
 
-    <div class="parameters-grid">
-      <mat-form-field appearance="fill">
-        <mat-label>K</mat-label>
-        <input matInput type="number" value="2">
+    <div class="parameters-grid" *ngIf="parameters$ | async as params">
+
+      <mat-form-field appearance="fill" *ngFor="let param of params.numeric_parameters">
+        <mat-label>{{ param.name }}</mat-label>
+        <input matInput [type]="param.type === 'INTEGER' ? 'number' : 'number'" [value]="param.default_value"
+          [max]="param.max_value" [step]="param.type === 'FLOAT' ? 0.01 : 1">
       </mat-form-field>
 
-      <mat-form-field appearance="fill">
-        <mat-label>Max iterations</mat-label>
-        <input matInput type="number" value="100">
+      <mat-form-field appearance="fill" *ngFor="let param of params.string_parameters">
+        <mat-label>{{ param.name }}</mat-label>
+        <input matInput type="text" [value]="param.default_value">
       </mat-form-field>
 
-      <mat-form-field appearance="fill">
-        <mat-label>Param n</mat-label>
-        <input matInput placeholder="X">
-      </mat-form-field>
+    </div>
 
-      <mat-form-field appearance="fill">
-        <mat-label>Sensitivity</mat-label>
-        <input matInput type="number" step="0.1" value="0.4">
-      </mat-form-field>
+    <div class="parameters-grid" *ngIf="!(parameters$ | async)">
+      <p style="color: gray;">Select an algorithm to see its parameters.</p>
     </div>
 
     <div class="dataset-actions">

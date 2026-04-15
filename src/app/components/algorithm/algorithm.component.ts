@@ -11,8 +11,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AsyncPipe, CommonModule } from '@angular/common';
 
-import { GetAlgorithms, SelectAlgorithm } from './algorithm.actions';
-import { AlgorithmModel } from './algorithm.model';
+import { GetAlgorithmParameters, GetAlgorithms, SelectAlgorithm } from './algorithm.actions';
+import { AlgorithmModel, AlgorithmParametersModel } from './algorithm.model';
 
 @Component({
   selector: 'app-model-config',
@@ -37,6 +37,10 @@ export class AlgorithmComponent implements OnInit {
     state => state.algorithm.algorithms
   );
 
+  parameters$: Observable<AlgorithmParametersModel | null> = this.store.select(
+    state => state.algorithm.parameters
+  );
+
   selectedAlgorithm: AlgorithmModel | null = null;
 
   ngOnInit() {
@@ -46,5 +50,6 @@ export class AlgorithmComponent implements OnInit {
   onAlgorithmSelected(algorithm: AlgorithmModel) {
     this.selectedAlgorithm = algorithm;
     this.store.dispatch(new SelectAlgorithm(algorithm));
+    this.store.dispatch(new GetAlgorithmParameters(algorithm.algorithm_id));
   }
 }
