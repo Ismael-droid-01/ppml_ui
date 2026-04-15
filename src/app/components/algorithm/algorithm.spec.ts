@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AlgorithmComponent } from './algorithm';
+import { AlgorithmComponent } from './algorithm.component';
 
 describe('AlgorithmComponent', () => {
   let component: AlgorithmComponent;

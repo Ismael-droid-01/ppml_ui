@@ -7,10 +7,10 @@
     <div class="section-row center">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Select an algorithm</mat-label>
-        <mat-select>
-          <mat-option value="skmeans">SKmeans</mat-option>
-          <mat-option value="logistic_regression">Logistic Regression</mat-option>
-          <mat-option value="random_forest">Random Forest</mat-option>
+        <mat-select (selectionChange)="onAlgorithmSelected($event.value)">
+          <mat-option *ngFor="let algorithm of algorithms$ | async" [value]="algorithm">
+            {{ algorithm.name }}
+          </mat-option>
         </mat-select>
       </mat-form-field>
     </div>
@@ -38,21 +38,21 @@
     </div>
 
     <div class="dataset-actions">
-    <mat-form-field appearance="outline" class="dataset-selector">
+      <mat-form-field appearance="outline" class="dataset-selector">
         <mat-label>Select a loaded dataset</mat-label>
         <mat-select [disabled]="uploadCheck.checked">
-        <mat-option value="ds1">Customer_Data_v1.csv</mat-option>
-        <mat-option value="ds2">Sales_Encrypted_2025.csv</mat-option>
-        <mat-option value="ds3">Training_Set_Alpha.csv</mat-option>
+          <mat-option value="ds1">Customer_Data_v1.csv</mat-option>
+          <mat-option value="ds2">Sales_Encrypted_2025.csv</mat-option>
+          <mat-option value="ds3">Training_Set_Alpha.csv</mat-option>
         </mat-select>
         <mat-icon matSuffix>storage</mat-icon>
-    </mat-form-field>
+      </mat-form-field>
 
-    <div class="upload-status">
+      <div class="upload-status">
         <mat-checkbox #uploadCheck color="primary" class="upload-checkbox">
-            Upload a new dataset
+          Upload a new dataset
         </mat-checkbox>
-    </div>
+      </div>
     </div>
 
     <div class="drop-zone" *ngIf="uploadCheck.checked">
