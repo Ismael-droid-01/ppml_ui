@@ -21,9 +21,9 @@ import { CommonModule } from '@angular/common';
     MatIconModule,
     MatCheckboxModule
   ],
-  templateUrl: './model-config.html',
-  styleUrl: './model-config.css',
+  templateUrl: './algorithm.html',
+  styleUrl: './algorithm.css',
 })
-export class ModelConfig {
+export class AlgorithmComponent {
 
 }
