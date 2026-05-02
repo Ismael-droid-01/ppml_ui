@@ -56,7 +56,7 @@ export class LoginComponent {
     ).subscribe({
       next: () => {
         console.log('Login successful, navigating to home page...');
-        this.router.navigate(['/model-config']); // Ensure navigation happens within Angular's zone
+        this.router.navigate(['/algorithm']); // Ensure navigation happens within Angular's zone
       },
       error: (error) => {
         console.error('Login failed:', error);
