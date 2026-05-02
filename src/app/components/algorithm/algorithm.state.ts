@@ -1,9 +1,9 @@
 import { inject, Injectable } from "@angular/core";
-import { Action, State, StateContext } from "@ngxs/store";
-import { AlgorithmService } from "./algorithm.service";
+import { Action, Selector, State, StateContext } from "@ngxs/store";
+import { catchError, tap, throwError } from "rxjs";
 import { GetAlgorithmParameters, GetAlgorithms, SelectAlgorithm } from "./algorithm.actions";
 import { AlgorithmModel, AlgorithmParametersModel, AlgorithmStateModel } from "./algorithm.model";
-import { tap, catchError, throwError } from "rxjs";
+import { AlgorithmService } from "./algorithm.service";
 
 @Injectable()
 @State<AlgorithmStateModel>({
@@ -11,11 +11,27 @@ import { tap, catchError, throwError } from "rxjs";
     defaults: {
         algorithms: [],
         selected: null,
-        parameters: null
+        parameters: null,
+        parameterValues: null
     }
 })
 export class AlgorithmState {
     private service = inject(AlgorithmService);
+
+    @Selector()
+    static algorithms(state: AlgorithmStateModel) {
+        return state.algorithms;
+    }
+    
+    @Selector()
+    static parameters(state: AlgorithmStateModel) {
+        return state.parameters;
+    }
+
+    @Selector()
+    static parameterValues(state: AlgorithmStateModel) {   
+        return state.parameterValues;
+    }
 
     @Action(GetAlgorithms)
     getAlgorithms(ctx: StateContext<AlgorithmStateModel>) {
@@ -32,7 +48,7 @@ export class AlgorithmState {
 
     @Action(SelectAlgorithm)
     selectAlgorithm(ctx: StateContext<AlgorithmStateModel>, action: SelectAlgorithm) {
-        ctx.patchState({ selected: action.algorithm });
+        ctx.patchState({ selected: action.algorithm, parameters: null, parameterValues: null });
     }
 
     @Action(GetAlgorithmParameters)

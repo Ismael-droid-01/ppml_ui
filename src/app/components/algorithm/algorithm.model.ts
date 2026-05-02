@@ -28,4 +28,5 @@ export interface AlgorithmStateModel {
     algorithms: AlgorithmModel[];
     selected: AlgorithmModel | null;
     parameters: AlgorithmParametersModel | null;
+    parameterValues: Record<string, any> | null;
 }

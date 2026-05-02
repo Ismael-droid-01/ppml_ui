@@ -13,3 +13,8 @@ export class GetAlgorithmParameters {
     static readonly type = '[Algorithm] Get Parameters';
     constructor(public algorithm_id: number) {}
 }
+
+export class SetAlgorithmParameterValue {
+    static readonly type = '[Algorithm] Set Parameter Value';
+    constructor(public values: Record<string, any>) {}
+}

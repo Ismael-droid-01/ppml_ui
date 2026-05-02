@@ -4,6 +4,8 @@
   </mat-card-header>
 
   <mat-card-content align="center">
+
+    <!-- Selector de algoritmo -->
     <div class="section-row center">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Select an algorithm</mat-label>
@@ -15,25 +17,58 @@
       </mat-form-field>
     </div>
 
-    <div class="parameters-grid" *ngIf="parameters$ | async as params">
+    <!-- Parámetros: solo si hay form construido -->
+    <form [formGroup]="paramsForm!" *ngIf="paramsForm && currentParams">
 
-      <mat-form-field appearance="fill" *ngFor="let param of params.numeric_parameters">
-        <mat-label>{{ param.name }}</mat-label>
-        <input matInput [type]="param.type === 'INTEGER' ? 'number' : 'number'" [value]="param.default_value"
-          [max]="param.max_value" [step]="param.type === 'FLOAT' ? 0.01 : 1">
-      </mat-form-field>
+      <div class="parameters-grid">
 
-      <mat-form-field appearance="fill" *ngFor="let param of params.string_parameters">
-        <mat-label>{{ param.name }}</mat-label>
-        <input matInput type="text" [value]="param.default_value">
-      </mat-form-field>
+        <!-- Parámetros numéricos -->
+        <ng-container formGroupName="numeric">
+          <mat-form-field
+            appearance="fill"
+            *ngFor="let param of currentParams.numeric_parameters">
+            <mat-label>{{ param.name }}</mat-label>
+            <input
+              matInput
+              type="number"
+              [formControlName]="param.name"
+              [step]="param.type === 'FLOAT' ? 0.01 : 1">
 
-    </div>
+            <mat-error *ngIf="getNumericControl(param.name)?.hasError('required')">
+              Required
+            </mat-error>
+            <mat-error *ngIf="getNumericControl(param.name)?.hasError('max')">
+              Max value: {{ param.max_value }}
+            </mat-error>
+          </mat-form-field>
+        </ng-container>
 
-    <div class="parameters-grid" *ngIf="!(parameters$ | async)">
+        <!-- Parámetros string -->
+        <ng-container formGroupName="string">
+          <mat-form-field
+            appearance="fill"
+            *ngFor="let param of currentParams.string_parameters">
+            <mat-label>{{ param.name }}</mat-label>
+            <input
+              matInput
+              type="text"
+              [formControlName]="param.name">
+
+            <mat-error *ngIf="getStringControl(param.name)?.hasError('required')">
+              Required
+            </mat-error>
+          </mat-form-field>
+        </ng-container>
+
+      </div>
+    </form>
+
+    <!-- Placeholder cuando no hay algoritmo seleccionado -->
+    <div class="parameters-grid" *ngIf="!currentParams">
       <p style="color: gray;">Select an algorithm to see its parameters.</p>
     </div>
 
+    <!-- Dataset -->
     <div class="dataset-actions">
       <mat-form-field appearance="outline" class="dataset-selector">
         <mat-label>Select a loaded dataset</mat-label>
@@ -57,10 +92,17 @@
       <p>Drag a dataset here</p>
     </div>
 
+    <!-- RUN -->
     <div class="run-container">
-      <button mat-raised-button color="primary" class="run-button">
+      <button
+        mat-raised-button
+        color="primary"
+        class="run-button"
+        [disabled]="paramsForm ? !paramsForm.valid : false"
+        (click)="onRun()">
         RUN
       </button>
     </div>
+
   </mat-card-content>
 </mat-card>
