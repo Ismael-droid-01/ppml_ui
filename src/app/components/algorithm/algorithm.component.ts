@@ -13,8 +13,8 @@ import { MatSelectModule } from '@angular/material/select';
 
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { GetAlgorithmParameters, GetAlgorithms, GetUserDatasets, SelectAlgorithm, SetAlgorithmParameterValue, UploadDataset } from './algorithm.actions';
-import { AlgorithmModel, AlgorithmParametersModel, DatasetModel } from './algorithm.model';
+import { GetAlgorithmParameters, GetAlgorithms, GetUserDatasets, RunTask, RunTaskPayload, SelectAlgorithm, SetAlgorithmParameterValue, UploadDataset } from './algorithm.actions';
+import { AlgorithmModel, AlgorithmParametersModel, DatasetModel, TaskCreatedResponse } from './algorithm.model';
 import { AlgorithmState } from './algorithm.state';
 
 @Component({
@@ -49,9 +49,13 @@ export class AlgorithmComponent implements OnInit {
   datasets$: Observable<DatasetModel[]> = this.store.select(AlgorithmState.datasets);
   uploading$: Observable<boolean> = this.store.select(AlgorithmState.uploading);
   uploadError$: Observable<string | null> = this.store.select(AlgorithmState.uploadError);
+  isRunning$: Observable<boolean>                      = this.store.select(AlgorithmState.isRunning);
+  runError$: Observable<string | null>                 = this.store.select(AlgorithmState.runError);
+  lastTask$: Observable<TaskCreatedResponse | null>    = this.store.select(AlgorithmState.lastTask);
 
   paramsForm: FormGroup | null = null;
   currentParams: AlgorithmParametersModel | null = null;
+  selectedDatasetId: number | null = null;
 
   ngOnInit() {
     this.store.dispatch(new GetAlgorithms());
@@ -118,11 +122,15 @@ export class AlgorithmComponent implements OnInit {
         event.preventDefault();
     }
 
-    onFileSelected(event: Event): void {
-        const input = event.target as HTMLInputElement;
-        const file = input.files?.[0];
-        if (file) this.store.dispatch(new UploadDataset(file));
-    }
+  onFileSelected(event: Event): void {
+      const input = event.target as HTMLInputElement;
+      const file = input.files?.[0];
+      if (file) this.store.dispatch(new UploadDataset(file));
+  }
+
+  onDatasetSelected(datasetId: number): void {
+    this.selectedDatasetId = datasetId;
+  }
 
   getNumericControl(name: string) {
     return this.paramsForm?.get('numeric')?.get(name);
@@ -133,9 +141,23 @@ export class AlgorithmComponent implements OnInit {
   }
 
   onRun(): void {
-    if (this.paramsForm?.valid) {
-      console.log('Runing with: ', this.paramsForm.value);
-    }
+    if (!this.paramsForm?.valid || !this.currentParams) return;
+
+    const formValues = this.paramsForm.value;
+
+    const payload: RunTaskPayload = {
+        algorithm_id: this.currentParams.algorithm_id,
+        numeric_values: this.currentParams.numeric_parameters.map(p => ({
+            parameter_id: p.parameter_id,
+            value: formValues.numeric[p.name]
+        })),
+        string_values: this.currentParams.string_parameters.map(p => ({
+            parameter_id: p.parameter_id,
+            value: formValues.string[p.name]
+        }))
+    };
+
+    this.store.dispatch(new RunTask(payload));
   }
 
   ngOnDestroy() { 

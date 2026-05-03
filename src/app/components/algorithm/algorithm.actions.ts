@@ -27,3 +27,14 @@ export class UploadDataset {
     static readonly type = '[Dataset] Upload Dataset';
     constructor(public file: File) {}
 }
+
+export class RunTask {
+    static readonly type = '[Task] Run Task';
+    constructor(public payload: RunTaskPayload) {}
+}
+
+export interface RunTaskPayload {
+    algorithm_id: number;
+    numeric_values: { parameter_id: number; value: number }[];
+    string_values: { parameter_id: number; value: string }[];
+}

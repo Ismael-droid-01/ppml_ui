@@ -5,6 +5,7 @@
 
   <mat-card-content align="center">
 
+    <!-- Algoritmo -->
     <div class="section-row center">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Select an algorithm</mat-label>
@@ -16,6 +17,7 @@
       </mat-form-field>
     </div>
 
+    <!-- Parámetros -->
     <form [formGroup]="paramsForm!" *ngIf="paramsForm && currentParams">
       <div class="parameters-grid">
 
@@ -60,10 +62,13 @@
       <p style="color: gray;">Select an algorithm to see its parameters.</p>
     </div>
 
+    <!-- Dataset -->
     <div class="dataset-actions">
       <mat-form-field appearance="outline" class="dataset-selector">
         <mat-label>Select a loaded dataset</mat-label>
-        <mat-select [disabled]="uploadCheck.checked">
+        <mat-select
+          [disabled]="uploadCheck.checked"
+          (selectionChange)="onDatasetSelected($event.value)">
           <mat-option
             *ngFor="let ds of datasets$ | async"
             [value]="ds.dataset_id">
@@ -87,7 +92,7 @@
       (dragover)="onDragOver($event)"
       (drop)="onFileDrop($event)">
 
-      <ng-container *ngIf="!(uploading$ | async); else spinner">
+      <ng-container *ngIf="!(uploading$ | async); else uploadSpinner">
         <mat-icon>backup</mat-icon>
         <p>Drag a dataset here or
           <label style="cursor:pointer; text-decoration:underline;">
@@ -103,23 +108,33 @@
           {{ err }}
         </p>
       </ng-container>
-
-      <ng-template #spinner>
+      <ng-template #uploadSpinner>
         <mat-spinner diameter="32"></mat-spinner>
         <p>Uploading...</p>
       </ng-template>
-
     </div>
 
+    <!-- Error de backend al ejecutar -->
+    <div *ngIf="runError$ | async as runErr" class="run-error-banner">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ runErr }}</span>
+    </div>
+
+    <!-- RUN -->
     <div class="run-container">
-      <button
-        mat-raised-button
-        color="primary"
-        class="run-button"
-        [disabled]="paramsForm ? !paramsForm.valid : false"
-        (click)="onRun()">
-        RUN
-      </button>
+      <ng-container *ngIf="!(isRunning$ | async); else runSpinner">
+        <button
+          mat-raised-button
+          color="primary"
+          class="run-button"
+          [disabled]="!paramsForm?.valid"
+          (click)="onRun()">
+          RUN
+        </button>
+      </ng-container>
+      <ng-template #runSpinner>
+        <mat-spinner diameter="36"></mat-spinner>
+      </ng-template>
     </div>
 
   </mat-card-content>

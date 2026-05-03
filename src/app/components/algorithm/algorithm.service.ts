@@ -1,7 +1,8 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { AlgorithmModel, AlgorithmParametersModel, DatasetModel } from "./algorithm.model";
+import { AlgorithmModel, AlgorithmParametersModel, DatasetModel, TaskCreatedResponse } from "./algorithm.model";
+import { RunTaskPayload } from "./algorithm.actions";
 
 @Injectable({ providedIn: 'root' })
 export class AlgorithmService {
@@ -26,5 +27,9 @@ export class AlgorithmService {
         const formData = new FormData();
         formData.append('file', file, file.name);
         return this.http.post<DatasetModel>(`${this.CALPULLI_URL}/datasets`, formData);
+    }
+
+    public runTask(payload: RunTaskPayload): Observable<TaskCreatedResponse> {
+        return this.http.post<TaskCreatedResponse>(`${this.CALPULLI_URL}/tasks/run`, payload);
     }
 }

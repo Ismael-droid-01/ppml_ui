@@ -30,6 +30,13 @@ export interface DatasetModel {
     extension: string;
 }
 
+export interface TaskCreatedResponse {
+    task_id: number;
+    user_id: number;
+    algorithm_id: number;
+    response_time: number;
+}
+
 export interface AlgorithmStateModel {
     algorithms: AlgorithmModel[];
     selected: AlgorithmModel | null;
@@ -38,4 +45,7 @@ export interface AlgorithmStateModel {
     datasets: DatasetModel[];
     uploading: boolean;
     uploadError: string | null;
+    isRunning: boolean;
+    runError: string | null;
+    lastTask: TaskCreatedResponse | null;
 }

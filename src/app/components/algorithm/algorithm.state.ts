@@ -1,8 +1,8 @@
 import { inject, Injectable } from "@angular/core";
 import { Action, Selector, State, StateContext } from "@ngxs/store";
 import { catchError, tap, throwError } from "rxjs";
-import { GetAlgorithmParameters, GetAlgorithms, GetUserDatasets, SelectAlgorithm, UploadDataset } from "./algorithm.actions";
-import { AlgorithmModel, AlgorithmParametersModel, AlgorithmStateModel, DatasetModel } from "./algorithm.model";
+import { GetAlgorithmParameters, GetAlgorithms, GetUserDatasets, RunTask, SelectAlgorithm, UploadDataset } from "./algorithm.actions";
+import { AlgorithmModel, AlgorithmParametersModel, AlgorithmStateModel, DatasetModel, TaskCreatedResponse } from "./algorithm.model";
 import { AlgorithmService } from "./algorithm.service";
 
 @Injectable()
@@ -15,7 +15,10 @@ import { AlgorithmService } from "./algorithm.service";
         parameterValues: null,
         datasets: [],
         uploading: false,
-        uploadError: null
+        uploadError: null,
+        isRunning: false,
+        runError: null,
+        lastTask: null
     }
 })
 export class AlgorithmState {
@@ -49,6 +52,21 @@ export class AlgorithmState {
     @Selector()
     static uploadError(state: AlgorithmStateModel) {
         return state.uploadError;
+    }
+
+    @Selector()
+    static isRunning(state: AlgorithmStateModel) {
+        return state.isRunning;
+    }
+
+    @Selector()
+    static runError(state: AlgorithmStateModel) {
+        return state.runError;
+    }
+
+    @Selector()
+    static lastTask(state: AlgorithmStateModel) {
+        return state.lastTask;
     }
 
     @Action(GetAlgorithms)
@@ -111,6 +129,21 @@ export class AlgorithmState {
                     uploading: false,
                     uploadError: error?.error?.detail ?? 'Upload failed'
                 });
+                return throwError(() => error);
+            })
+        );
+    }
+
+    @Action(RunTask)
+    runTask(ctx: StateContext<AlgorithmStateModel>, action: RunTask) {
+        ctx.patchState({ isRunning: true, runError: null, lastTask: null });
+        return this.service.runTask(action.payload).pipe(
+            tap((task: TaskCreatedResponse) => {
+                ctx.patchState({ isRunning: false, lastTask: task });
+            }),
+            catchError(error => {
+                const message = error?.error?.detail ?? 'Unexpected error, please try again.';
+                ctx.patchState({ isRunning: false, runError: message });
                 return throwError(() => error);
             })
         );
