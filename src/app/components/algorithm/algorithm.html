@@ -80,9 +80,35 @@
       </div>
     </div>
 
-    <div class="drop-zone" *ngIf="uploadCheck.checked">
-      <mat-icon>backup</mat-icon>
-      <p>Drag a dataset here</p>
+    <!-- Drop zone -->
+    <div
+      class="drop-zone"
+      *ngIf="uploadCheck.checked"
+      (dragover)="onDragOver($event)"
+      (drop)="onFileDrop($event)">
+
+      <ng-container *ngIf="!(uploading$ | async); else spinner">
+        <mat-icon>backup</mat-icon>
+        <p>Drag a dataset here or
+          <label style="cursor:pointer; text-decoration:underline;">
+            browse
+            <input
+              type="file"
+              accept=".csv,.json,.xlsx"
+              style="display:none"
+              (change)="onFileSelected($event)">
+          </label>
+        </p>
+        <p *ngIf="uploadError$ | async as err" style="color: red; font-size: 12px;">
+          {{ err }}
+        </p>
+      </ng-container>
+
+      <ng-template #spinner>
+        <mat-spinner diameter="32"></mat-spinner>
+        <p>Uploading...</p>
+      </ng-template>
+
     </div>
 
     <div class="run-container">

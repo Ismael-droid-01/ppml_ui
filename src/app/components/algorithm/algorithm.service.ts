@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { AlgorithmModel, AlgorithmParametersModel } from "./algorithm.model";
+import { AlgorithmModel, AlgorithmParametersModel, DatasetModel } from "./algorithm.model";
 
 @Injectable({ providedIn: 'root' })
 export class AlgorithmService {
@@ -20,5 +20,11 @@ export class AlgorithmService {
 
     public getUserDatasets(): Observable<any> {
         return this.http.get(`${this.CALPULLI_URL}/datasets`);
+    }
+
+    public uploadDataset(file: File): Observable<DatasetModel> {
+        const formData = new FormData();
+        formData.append('file', file, file.name);
+        return this.http.post<DatasetModel>(`${this.CALPULLI_URL}/datasets`, formData);
     }
 }

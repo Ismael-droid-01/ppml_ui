@@ -22,3 +22,8 @@ export class SetAlgorithmParameterValue {
 export class GetUserDatasets {
     static readonly type = '[Dataset] Get By User';
 }
+
+export class UploadDataset {
+    static readonly type = '[Dataset] Upload Dataset';
+    constructor(public file: File) {}
+}

@@ -36,4 +36,6 @@ export interface AlgorithmStateModel {
     parameters: AlgorithmParametersModel | null;
     parameterValues: Record<string, any> | null;
     datasets: DatasetModel[];
+    uploading: boolean;
+    uploadError: string | null;
 }

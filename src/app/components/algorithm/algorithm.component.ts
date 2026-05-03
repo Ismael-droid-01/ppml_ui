@@ -12,7 +12,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { GetAlgorithmParameters, GetAlgorithms, GetUserDatasets, SelectAlgorithm, SetAlgorithmParameterValue } from './algorithm.actions';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { GetAlgorithmParameters, GetAlgorithms, GetUserDatasets, SelectAlgorithm, SetAlgorithmParameterValue, UploadDataset } from './algorithm.actions';
 import { AlgorithmModel, AlgorithmParametersModel, DatasetModel } from './algorithm.model';
 import { AlgorithmState } from './algorithm.state';
 
@@ -28,7 +29,8 @@ import { AlgorithmState } from './algorithm.state';
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './algorithm.html',
   styleUrl: './algorithm.css',
@@ -41,15 +43,14 @@ export class AlgorithmComponent implements OnInit {
   algorithms$: Observable<AlgorithmModel[]> = this.store.select(
     state => state.algorithm.algorithms
   );
-
   parameters$: Observable<AlgorithmParametersModel | null> = this.store.select(
     state => state.algorithm.parameters
   );
-
   datasets$: Observable<DatasetModel[]> = this.store.select(AlgorithmState.datasets);
+  uploading$: Observable<boolean> = this.store.select(AlgorithmState.uploading);
+  uploadError$: Observable<string | null> = this.store.select(AlgorithmState.uploadError);
 
   paramsForm: FormGroup | null = null;
-
   currentParams: AlgorithmParametersModel | null = null;
 
   ngOnInit() {
@@ -106,6 +107,22 @@ export class AlgorithmComponent implements OnInit {
     this.store.dispatch(new SelectAlgorithm(algorithm));
     this.store.dispatch(new GetAlgorithmParameters(algorithm.algorithm_id));
   }
+
+  onFileDrop(event: DragEvent): void {
+        event.preventDefault();
+        const file = event.dataTransfer?.files?.[0];
+        if (file) this.store.dispatch(new UploadDataset(file));
+    }
+
+    onDragOver(event: DragEvent): void {
+        event.preventDefault();
+    }
+
+    onFileSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        if (file) this.store.dispatch(new UploadDataset(file));
+    }
 
   getNumericControl(name: string) {
     return this.paramsForm?.get('numeric')?.get(name);

@@ -1,7 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 import { Action, Selector, State, StateContext } from "@ngxs/store";
 import { catchError, tap, throwError } from "rxjs";
-import { GetAlgorithmParameters, GetAlgorithms, GetUserDatasets, SelectAlgorithm } from "./algorithm.actions";
+import { GetAlgorithmParameters, GetAlgorithms, GetUserDatasets, SelectAlgorithm, UploadDataset } from "./algorithm.actions";
 import { AlgorithmModel, AlgorithmParametersModel, AlgorithmStateModel, DatasetModel } from "./algorithm.model";
 import { AlgorithmService } from "./algorithm.service";
 
@@ -13,7 +13,9 @@ import { AlgorithmService } from "./algorithm.service";
         selected: null,
         parameters: null,
         parameterValues: null,
-        datasets: []
+        datasets: [],
+        uploading: false,
+        uploadError: null
     }
 })
 export class AlgorithmState {
@@ -37,6 +39,16 @@ export class AlgorithmState {
     @Selector()
     static datasets(state: AlgorithmStateModel) {
         return state.datasets;
+    }
+
+    @Selector()
+    static uploading(state: AlgorithmStateModel) {
+        return state.uploading;
+    }
+
+    @Selector()
+    static uploadError(state: AlgorithmStateModel) {
+        return state.uploadError;
     }
 
     @Action(GetAlgorithms)
@@ -76,6 +88,29 @@ export class AlgorithmState {
             tap((datasets: DatasetModel[]) =>  ctx.patchState({ datasets})),
             catchError(error => {
                 console.error('Failed to fetch user datasets:', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
+    @Action(UploadDataset)
+    uploadDataset(ctx: StateContext<AlgorithmStateModel>, action: UploadDataset) {
+        ctx.patchState({ uploading: true, uploadError: null });
+
+        return this.service.uploadDataset(action.file).pipe(
+            tap((newDataset: DatasetModel) => {
+                const current = ctx.getState().datasets;
+                ctx.patchState({
+                    datasets: [...current, newDataset],
+                    uploading: false,
+                    uploadError: null
+                });
+            }),
+            catchError(error => {
+                ctx.patchState({
+                    uploading: false,
+                    uploadError: error?.error?.detail ?? 'Upload failed'
+                });
                 return throwError(() => error);
             })
         );
