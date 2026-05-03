@@ -1,8 +1,8 @@
 import { inject, Injectable } from "@angular/core";
 import { Action, Selector, State, StateContext } from "@ngxs/store";
 import { catchError, tap, throwError } from "rxjs";
-import { GetAlgorithmParameters, GetAlgorithms, SelectAlgorithm } from "./algorithm.actions";
-import { AlgorithmModel, AlgorithmParametersModel, AlgorithmStateModel } from "./algorithm.model";
+import { GetAlgorithmParameters, GetAlgorithms, GetUserDatasets, SelectAlgorithm } from "./algorithm.actions";
+import { AlgorithmModel, AlgorithmParametersModel, AlgorithmStateModel, DatasetModel } from "./algorithm.model";
 import { AlgorithmService } from "./algorithm.service";
 
 @Injectable()
@@ -12,7 +12,8 @@ import { AlgorithmService } from "./algorithm.service";
         algorithms: [],
         selected: null,
         parameters: null,
-        parameterValues: null
+        parameterValues: null,
+        datasets: []
     }
 })
 export class AlgorithmState {
@@ -31,6 +32,11 @@ export class AlgorithmState {
     @Selector()
     static parameterValues(state: AlgorithmStateModel) {   
         return state.parameterValues;
+    }
+
+    @Selector()
+    static datasets(state: AlgorithmStateModel) {
+        return state.datasets;
     }
 
     @Action(GetAlgorithms)
@@ -59,6 +65,17 @@ export class AlgorithmState {
             }),
             catchError(error => {
                 console.error('Failed to fetch algorithm parameters:', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
+    @Action(GetUserDatasets)
+    getUserDatasets(ctx: StateContext<AlgorithmStateModel>) {
+        return this.service.getUserDatasets().pipe(
+            tap((datasets: DatasetModel[]) =>  ctx.patchState({ datasets})),
+            catchError(error => {
+                console.error('Failed to fetch user datasets:', error);
                 return throwError(() => error);
             })
         );

@@ -5,7 +5,6 @@
 
   <mat-card-content align="center">
 
-    <!-- Selector de algoritmo -->
     <div class="section-row center">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Select an algorithm</mat-label>
@@ -17,12 +16,9 @@
       </mat-form-field>
     </div>
 
-    <!-- Parámetros: solo si hay form construido -->
     <form [formGroup]="paramsForm!" *ngIf="paramsForm && currentParams">
-
       <div class="parameters-grid">
 
-        <!-- Parámetros numéricos -->
         <ng-container formGroupName="numeric">
           <mat-form-field
             appearance="fill"
@@ -33,7 +29,6 @@
               type="number"
               [formControlName]="param.name"
               [step]="param.type === 'FLOAT' ? 0.01 : 1">
-
             <mat-error *ngIf="getNumericControl(param.name)?.hasError('required')">
               Required
             </mat-error>
@@ -43,7 +38,6 @@
           </mat-form-field>
         </ng-container>
 
-        <!-- Parámetros string -->
         <ng-container formGroupName="string">
           <mat-form-field
             appearance="fill"
@@ -53,7 +47,6 @@
               matInput
               type="text"
               [formControlName]="param.name">
-
             <mat-error *ngIf="getStringControl(param.name)?.hasError('required')">
               Required
             </mat-error>
@@ -63,19 +56,19 @@
       </div>
     </form>
 
-    <!-- Placeholder cuando no hay algoritmo seleccionado -->
     <div class="parameters-grid" *ngIf="!currentParams">
       <p style="color: gray;">Select an algorithm to see its parameters.</p>
     </div>
 
-    <!-- Dataset -->
     <div class="dataset-actions">
       <mat-form-field appearance="outline" class="dataset-selector">
         <mat-label>Select a loaded dataset</mat-label>
         <mat-select [disabled]="uploadCheck.checked">
-          <mat-option value="ds1">Customer_Data_v1.csv</mat-option>
-          <mat-option value="ds2">Sales_Encrypted_2025.csv</mat-option>
-          <mat-option value="ds3">Training_Set_Alpha.csv</mat-option>
+          <mat-option
+            *ngFor="let ds of datasets$ | async"
+            [value]="ds.dataset_id">
+            {{ ds.name }}.{{ ds.extension }}
+          </mat-option>
         </mat-select>
         <mat-icon matSuffix>storage</mat-icon>
       </mat-form-field>
@@ -92,7 +85,6 @@
       <p>Drag a dataset here</p>
     </div>
 
-    <!-- RUN -->
     <div class="run-container">
       <button
         mat-raised-button

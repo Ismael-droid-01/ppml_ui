@@ -12,8 +12,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { GetAlgorithmParameters, GetAlgorithms, SelectAlgorithm, SetAlgorithmParameterValue } from './algorithm.actions';
-import { AlgorithmModel, AlgorithmParametersModel } from './algorithm.model';
+import { GetAlgorithmParameters, GetAlgorithms, GetUserDatasets, SelectAlgorithm, SetAlgorithmParameterValue } from './algorithm.actions';
+import { AlgorithmModel, AlgorithmParametersModel, DatasetModel } from './algorithm.model';
+import { AlgorithmState } from './algorithm.state';
 
 @Component({
   selector: 'app-model-config',
@@ -45,12 +46,16 @@ export class AlgorithmComponent implements OnInit {
     state => state.algorithm.parameters
   );
 
+  datasets$: Observable<DatasetModel[]> = this.store.select(AlgorithmState.datasets);
+
   paramsForm: FormGroup | null = null;
 
   currentParams: AlgorithmParametersModel | null = null;
 
   ngOnInit() {
     this.store.dispatch(new GetAlgorithms());
+    this.store.dispatch(new GetUserDatasets());
+
     this.sub.add(
       this.parameters$.subscribe(params => {
         this.currentParams = params;

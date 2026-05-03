@@ -24,9 +24,16 @@ export interface AlgorithmParametersModel {
     string_parameters: StringParameterModel[];
 }
 
+export interface DatasetModel {
+    dataset_id: number;
+    name: string;
+    extension: string;
+}
+
 export interface AlgorithmStateModel {
     algorithms: AlgorithmModel[];
     selected: AlgorithmModel | null;
     parameters: AlgorithmParametersModel | null;
     parameterValues: Record<string, any> | null;
+    datasets: DatasetModel[];
 }

@@ -17,4 +17,8 @@ export class AlgorithmService {
             `${this.CALPULLI_URL}/algorithms/${algorithm_id}/parameters`
         );
     }
+
+    public getUserDatasets(): Observable<any> {
+        return this.http.get(`${this.CALPULLI_URL}/datasets`);
+    }
 }

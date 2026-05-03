@@ -18,3 +18,7 @@ export class SetAlgorithmParameterValue {
     static readonly type = '[Algorithm] Set Parameter Value';
     constructor(public values: Record<string, any>) {}
 }
+
+export class GetUserDatasets {
+    static readonly type = '[Dataset] Get By User';
+}
