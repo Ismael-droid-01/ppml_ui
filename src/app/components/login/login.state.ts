@@ -1,10 +1,10 @@
  
 import { inject, Injectable } from "@angular/core";
-import { Action, State, StateContext } from "@ngxs/store";
-import { LoginService } from "@components/login/login.service";
 import { Login } from "@components/login/login.actions";
 import { LoginStateModel } from "@components/login/login.model";
-import { catchError, delay, tap, throwError } from "rxjs";
+import { LoginService } from "@components/login/login.service";
+import { Action, Selector, State, StateContext } from "@ngxs/store";
+import { catchError, tap, throwError } from "rxjs";
 
 
 
@@ -21,7 +21,17 @@ import { catchError, delay, tap, throwError } from "rxjs";
     }
 })
 export class LoginState {
-    private authService = inject(LoginService)
+    private authService = inject(LoginService);
+
+    @Selector()
+    static accessToken(state: LoginStateModel): string {
+        return state.access_token;
+    }
+
+    @Selector()
+    static temporalSecretKey(state: LoginStateModel): string {
+        return state.temporal_secret_key;
+    }
 
     @Action(Login)
     login(ctx: StateContext<LoginStateModel>, action: Login) {

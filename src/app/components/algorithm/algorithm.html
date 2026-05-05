@@ -4,6 +4,8 @@
   </mat-card-header>
 
   <mat-card-content align="center">
+
+    <!-- Algoritmo -->
     <div class="section-row center">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Select an algorithm</mat-label>
@@ -15,32 +17,63 @@
       </mat-form-field>
     </div>
 
-    <div class="parameters-grid" *ngIf="parameters$ | async as params">
+    <!-- Parámetros -->
+    <form [formGroup]="paramsForm!" *ngIf="paramsForm && currentParams">
+      <div class="parameters-grid">
 
-      <mat-form-field appearance="fill" *ngFor="let param of params.numeric_parameters">
-        <mat-label>{{ param.name }}</mat-label>
-        <input matInput [type]="param.type === 'INTEGER' ? 'number' : 'number'" [value]="param.default_value"
-          [max]="param.max_value" [step]="param.type === 'FLOAT' ? 0.01 : 1">
-      </mat-form-field>
+        <ng-container formGroupName="numeric">
+          <mat-form-field
+            appearance="fill"
+            *ngFor="let param of currentParams.numeric_parameters">
+            <mat-label>{{ param.name }}</mat-label>
+            <input
+              matInput
+              type="number"
+              [formControlName]="param.name"
+              [step]="param.type === 'FLOAT' ? 0.01 : 1">
+            <mat-error *ngIf="getNumericControl(param.name)?.hasError('required')">
+              Required
+            </mat-error>
+            <mat-error *ngIf="getNumericControl(param.name)?.hasError('max')">
+              Max value: {{ param.max_value }}
+            </mat-error>
+          </mat-form-field>
+        </ng-container>
 
-      <mat-form-field appearance="fill" *ngFor="let param of params.string_parameters">
-        <mat-label>{{ param.name }}</mat-label>
-        <input matInput type="text" [value]="param.default_value">
-      </mat-form-field>
+        <ng-container formGroupName="string">
+          <mat-form-field
+            appearance="fill"
+            *ngFor="let param of currentParams.string_parameters">
+            <mat-label>{{ param.name }}</mat-label>
+            <input
+              matInput
+              type="text"
+              [formControlName]="param.name">
+            <mat-error *ngIf="getStringControl(param.name)?.hasError('required')">
+              Required
+            </mat-error>
+          </mat-form-field>
+        </ng-container>
 
-    </div>
+      </div>
+    </form>
 
-    <div class="parameters-grid" *ngIf="!(parameters$ | async)">
+    <div class="parameters-grid" *ngIf="!currentParams">
       <p style="color: gray;">Select an algorithm to see its parameters.</p>
     </div>
 
+    <!-- Dataset -->
     <div class="dataset-actions">
       <mat-form-field appearance="outline" class="dataset-selector">
         <mat-label>Select a loaded dataset</mat-label>
-        <mat-select [disabled]="uploadCheck.checked">
-          <mat-option value="ds1">Customer_Data_v1.csv</mat-option>
-          <mat-option value="ds2">Sales_Encrypted_2025.csv</mat-option>
-          <mat-option value="ds3">Training_Set_Alpha.csv</mat-option>
+        <mat-select
+          [disabled]="uploadCheck.checked"
+          (selectionChange)="onDatasetSelected($event.value)">
+          <mat-option
+            *ngFor="let ds of datasets$ | async"
+            [value]="ds.dataset_id">
+            {{ ds.name }}.{{ ds.extension }}
+          </mat-option>
         </mat-select>
         <mat-icon matSuffix>storage</mat-icon>
       </mat-form-field>
@@ -52,15 +85,57 @@
       </div>
     </div>
 
-    <div class="drop-zone" *ngIf="uploadCheck.checked">
-      <mat-icon>backup</mat-icon>
-      <p>Drag a dataset here</p>
+    <!-- Drop zone -->
+    <div
+      class="drop-zone"
+      *ngIf="uploadCheck.checked"
+      (dragover)="onDragOver($event)"
+      (drop)="onFileDrop($event)">
+
+      <ng-container *ngIf="!(uploading$ | async); else uploadSpinner">
+        <mat-icon>backup</mat-icon>
+        <p>Drag a dataset here or
+          <label style="cursor:pointer; text-decoration:underline;">
+            browse
+            <input
+              type="file"
+              accept=".csv,.json,.xlsx"
+              style="display:none"
+              (change)="onFileSelected($event)">
+          </label>
+        </p>
+        <p *ngIf="uploadError$ | async as err" style="color: red; font-size: 12px;">
+          {{ err }}
+        </p>
+      </ng-container>
+      <ng-template #uploadSpinner>
+        <mat-spinner diameter="32"></mat-spinner>
+        <p>Uploading...</p>
+      </ng-template>
     </div>
 
-    <div class="run-container">
-      <button mat-raised-button color="primary" class="run-button">
-        RUN
-      </button>
+    <!-- Error de backend al ejecutar -->
+    <div *ngIf="runError$ | async as runErr" class="run-error-banner">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ runErr }}</span>
     </div>
+
+    <!-- RUN -->
+    <div class="run-container">
+      <ng-container *ngIf="!(isRunning$ | async); else runSpinner">
+        <button
+          mat-raised-button
+          color="primary"
+          class="run-button"
+          [disabled]="!paramsForm?.valid"
+          (click)="onRun()">
+          RUN
+        </button>
+      </ng-container>
+      <ng-template #runSpinner>
+        <mat-spinner diameter="36"></mat-spinner>
+      </ng-template>
+    </div>
+
   </mat-card-content>
 </mat-card>
